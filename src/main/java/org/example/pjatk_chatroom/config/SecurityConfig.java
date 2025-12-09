@@ -1,5 +1,7 @@
 package org.example.pjatk_chatroom.config;
 
+import java.util.List;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +11,7 @@ import org.springframework.security.authentication.DefaultAuthenticationEventPub
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -35,7 +38,31 @@ public class SecurityConfig {
          * 5) role: "USER"
          * 6) zwróć utworzony InMemoryUserDetailsManager
          */
-        throw new RuntimeException();
+        String generatedPassword= passwordEncoder.encode("test");
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+
+        List<UserDetails> details =  List.of(
+            User.withUsername("Michal")
+                .password(generatedPassword)
+                .roles("USER")
+                .build(),
+            User.withUsername("Agnieszka")
+                .password(generatedPassword)
+                .roles("USER")
+                .build(),
+            User.withUsername("Krzysztof")
+                .password(generatedPassword)
+                .roles("USER")
+                .build(),
+            User.withUsername("Laura")
+                .password(generatedPassword)
+                .roles("USER")
+                .build()
+        );
+        for (UserDetails user : details)
+            manager.createUser(user);
+
+        return manager;
     }
 
     @Bean
@@ -44,7 +71,7 @@ public class SecurityConfig {
         /**
          * 1) Utwórz i zwróć new DefaultAuthenticationEventPublisher(delegate)
          */
-        throw new RuntimeException();
+        return new DefaultAuthenticationEventPublisher(delegate);
     }
 
     @Bean
@@ -58,6 +85,16 @@ public class SecurityConfig {
          * 6) ustaw loginPage("/login")
          * 7) zbuduj i zwróć SecurityFilterChain
          */
-        throw new RuntimeException();
+        http.authorizeHttpRequests(auth -> auth
+            .requestMatchers("/login").permitAll()
+            .requestMatchers("/images/image.png").permitAll()
+            .anyRequest().authenticated()
+        );
+
+        http.formLogin(form -> form
+            .loginPage("/login")
+        );
+
+        return http.build();
     }
 }

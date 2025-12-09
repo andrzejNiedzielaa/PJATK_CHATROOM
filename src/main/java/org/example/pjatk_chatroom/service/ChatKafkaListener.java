@@ -31,6 +31,7 @@ public class ChatKafkaListener {
          * 3) Wyślij tę wiadomość przez WebSocket na destination "/topic/greetings"
          *    używając ws.convertAndSend("/topic/greetings", msg)
          */
-        throw new RuntimeException();
+        messageService.addMessageWithNormalization(msg);
+        ws.convertAndSend("topic/greetings", msg);
     }
 }
