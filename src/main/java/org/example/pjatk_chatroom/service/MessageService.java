@@ -38,7 +38,7 @@ public class MessageService {
         content = safeTrim(content);
 
         synchronized (history) {
-            if (history.size() > MAX_HISTORY_SIZE)
+            if (history.size() >= MAX_HISTORY_SIZE)
                 history.removeFirst();
             history.addLast(new MessageDto(author, content));
         }
@@ -76,15 +76,15 @@ public class MessageService {
          */
         synchronized (history) {
             int size = history.size();
-            int number = Math.min(Math.max(0, limit), size);
+            int number = Math.min(Math.max(ZERO, limit), size);
 
             if (number == 0)
                 return List.of();
 
-            MessageDto[] snapshot = history.toArray(new MessageDto[]{});
+            MessageDto[] snapshot = history.toArray(new MessageDto[size]);
 
             List<MessageDto> result = Arrays.asList(
-                Arrays.copyOfRange(snapshot,  size - number - 1 , size)
+                Arrays.copyOfRange(snapshot,  size - number, size)
             );
 
             return result;
@@ -117,7 +117,7 @@ public class MessageService {
          * 2)   jeśli NIE → zwróć stałą ANON.
          * 3)   jeśli TAK → zwróć s.trim().
          */
-        if (s == null || s == "")
+        if (s == null || s.trim() == "")
             return ANON;
 
         return s.trim();
